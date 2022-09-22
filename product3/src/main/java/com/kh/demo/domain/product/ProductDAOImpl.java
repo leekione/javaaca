@@ -71,9 +71,9 @@ public class ProductDAOImpl implements ProductDAO{
     try {
 
       Product product = jt.queryForObject(
-          sql.toString(),
-          new BeanPropertyRowMapper<>(Product.class),
-          productId);
+              sql.toString(),
+              new BeanPropertyRowMapper<>(Product.class),
+              productId);
       return Optional.of(product);
 
     }catch (EmptyResultDataAccessException e){
@@ -94,7 +94,7 @@ public class ProductDAOImpl implements ProductDAO{
     sql.append(" where product_id = ? ");
 
     int affectedRow = jt.update(sql.toString(),
-        product.getPname(), product.getQuantity(), product.getPrice(),productId);
+            product.getPname(), product.getQuantity(), product.getPrice(),productId);
     return affectedRow;
   }
 

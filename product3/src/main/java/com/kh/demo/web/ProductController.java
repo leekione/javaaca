@@ -1,5 +1,8 @@
 package com.kh.demo.web;
 
+import com.kh.demo.domain.common.file.AttachCode;
+import com.kh.demo.domain.common.file.UploadFile;
+import com.kh.demo.domain.common.file.UploadFileDAO;
 import com.kh.demo.domain.product.Product;
 import com.kh.demo.domain.product.ProductSVC;
 import com.kh.demo.web.form.DetailForm;
@@ -26,6 +29,7 @@ import java.util.Optional;
 public class ProductController {
 
   private final ProductSVC productSVC;
+  private final UploadFileDAO uploadFileDAO;
 
   //등록양식
   @GetMapping("/add")
@@ -33,42 +37,7 @@ public class ProductController {
     model.addAttribute("form", new SaveForm());
     return "product/saveForm";
   }
-  //등록
-  //@PostMapping("/add")
-//  public String saveV2(@Valid @ModelAttribute("form") SaveForm saveForm,
-//                     BindingResult bindingResult,
-//                     RedirectAttributes redirectAttributes) throws IOException {
-//
-//    log.info("safeForm={}",saveForm);
-//    if(!saveForm.getFile().isEmpty()) {
-//      log.info("첨부파일이름={}", saveForm.getFile().getOriginalFilename());
-//      log.info("파일크기={}", saveForm.getFile().getSize());
-//      log.info("파일유형={}", saveForm.getFile().getContentType());
-//      String originalFilename = saveForm.getFile().getOriginalFilename();
-//
-//      String storeFileName = storeFileName(originalFilename);
-//      saveForm.getFile().transferTo(new File("d:/tmp/" + storeFileName));
-//      log.info("내부보관파일명={}", storeFileName);
-//    }
-//      if(!saveForm.getFiles().isEmpty()) {
-//      List<MultipartFile> files = saveForm.getFiles();
-//      files.stream().forEach(file->{
-//        log.info("첨부파일이름={}", file.getOriginalFilename());
-//        log.info("파일크기={}", file.getSize());
-//        log.info("파일유형={}", file.getContentType());
-//        String originalFilename = file.getOriginalFilename();
-//        String storeFileName = storeFileName(originalFilename);
-//        log.info("내부보관파일명={}", storeFileName);
-//        try {
-//          file.transferTo(new File("d:/tmp/"+storeFileName));
-//        } catch (IOException e) {
-//          throw new RuntimeException(e);
-//        }
-//      });
-//
-//    }
-//    return "redirect:/products/{id}/detail";
-//  }
+
   //등록
   @PostMapping("/add")
   public String save(@Valid @ModelAttribute("form") SaveForm saveForm,
@@ -102,20 +71,24 @@ public class ProductController {
 
     Long productId = 0L;
     //상품
-    //주의 : view에서 multiple인 경우 파일첨부가 없더라도 빈문자열("")이 반환되어
-    //      List<MultiPartFile> 빈객체 1개가 포함됨
+    //주의 : view에서 mulitple인경우 파일첨부가 없더라도 빈문자열("")이 반환되어
+    //      List<MultiPartFile> 빈객체 1개가 포함됨.
+    log.info("1");
     if(saveForm.getFile().isEmpty() && saveForm.getFiles().get(0).isEmpty()){
+      log.info("2");
       productId = productSVC.save(product);
       //상품,설명첨부
     }else if(!saveForm.getFile().isEmpty() && saveForm.getFiles().get(0).isEmpty()){
+      log.info("3");
       productId = productSVC.save(product,saveForm.getFile());
       //상품,이미지첨부
     }else if(saveForm.getFile().isEmpty() && !saveForm.getFiles().get(0).isEmpty()){
+      log.info("4");
       productId = productSVC.save(product,saveForm.getFiles());
       //상품,설명첨부,이미지첨부
     }else if(!saveForm.getFile().isEmpty() && !saveForm.getFiles().get(0).isEmpty()){
+      log.info("5");
       productId = productSVC.save(product,saveForm.getFile(),saveForm.getFiles());
-
     }
 
     redirectAttributes.addAttribute("id", productId);
@@ -127,10 +100,28 @@ public class ProductController {
   public String findByProductId(@PathVariable("id") Long productId,
                                 Model model) {
 
+    //1)상품조회
     Optional<Product> findedProduct = productSVC.findByProductId(productId);
     DetailForm detailForm = new DetailForm();
     if(!findedProduct.isEmpty()) {
       BeanUtils.copyProperties(findedProduct.get(), detailForm);
+    }
+    //2)첨부파일 조회
+    //2-1)상품설명파일 조회
+
+    List<UploadFile> uploadFile = uploadFileDAO.getFilesByCodeWithRid(AttachCode.P0101.name(), productId);
+    if (uploadFile.size() > 0) {
+      UploadFile attachFile = uploadFile.get(0);
+      detailForm.setAttachFile(attachFile);
+    }
+    //2-2)상품이미지 조회
+    List<UploadFile> uploadFiles = uploadFileDAO.getFilesByCodeWithRid(AttachCode.P0102.name(), productId);
+    if(uploadFiles.size() > 0){
+      List<UploadFile> imageFiles = new ArrayList<>();
+      for(UploadFile file : uploadFiles){
+        imageFiles.add(file);
+      }
+      detailForm.setImageFiles(imageFiles);
     }
 
     model.addAttribute("form", detailForm);
@@ -141,11 +132,29 @@ public class ProductController {
   @GetMapping("/{id}/edit")
   public String updateForm(@PathVariable("id") Long productId,
                            Model model) {
-
+    //1)상품조회
     Optional<Product> findedProduct = productSVC.findByProductId(productId);
     UpdateForm updateForm = new UpdateForm();
     if(!findedProduct.isEmpty()) {
       BeanUtils.copyProperties(findedProduct.get(), updateForm);
+    }
+
+    //2)첨부파일 조회
+    //2-1)상품설명파일 조회
+
+    List<UploadFile> uploadFile = uploadFileDAO.getFilesByCodeWithRid(AttachCode.P0101.name(), productId);
+    if (uploadFile.size() > 0) {
+      UploadFile attachFile = uploadFile.get(0);
+      updateForm.setAttachFile(attachFile);
+    }
+    //2-2)상품이미지 조회
+    List<UploadFile> uploadFiles = uploadFileDAO.getFilesByCodeWithRid(AttachCode.P0102.name(), productId);
+    if(uploadFiles.size() > 0){
+      List<UploadFile> imageFiles = new ArrayList<>();
+      for(UploadFile file : uploadFiles){
+        imageFiles.add(file);
+      }
+      updateForm.setImageFiles(imageFiles);
     }
     model.addAttribute("form", updateForm);
 
@@ -210,7 +219,5 @@ public class ProductController {
     model.addAttribute("list", list);
     return "product/all";
   }
-
-
 
 }

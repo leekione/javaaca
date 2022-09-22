@@ -53,8 +53,8 @@ public class UploadFileDAOImpl implements UploadFileDAO{
                 PreparedStatement pstmt = con.prepareStatement(sql.toString(),new String[]{"uploadfile_id"});
                 pstmt.setString(1, uploadFile.getCode());
                 pstmt.setLong(2,uploadFile.getRid());
-                pstmt.setString(3, uploadFile.getStoreFileName());
-                pstmt.setString(4, uploadFile.getUploadFileName());
+                pstmt.setString(3, uploadFile.getStoreFilename());
+                pstmt.setString(4, uploadFile.getUploadFilename());
                 pstmt.setString(5, uploadFile.getFsize());
                 pstmt.setString(6, uploadFile.getFtype());
                 return pstmt;
@@ -93,8 +93,8 @@ public class UploadFileDAOImpl implements UploadFileDAO{
             public void setValues(PreparedStatement ps, int i) throws SQLException {
                 ps.setString(1, uploadFile.get(i).getCode());
                 ps.setLong(2,uploadFile.get(i).getRid());
-                ps.setString(3, uploadFile.get(i).getStoreFileName());
-                ps.setString(4, uploadFile.get(i).getUploadFileName());
+                ps.setString(3, uploadFile.get(i).getStoreFilename());
+                ps.setString(4, uploadFile.get(i).getUploadFilename());
                 ps.setString(5, uploadFile.get(i).getFsize());
                 ps.setString(6, uploadFile.get(i).getFtype());
             }
@@ -128,7 +128,7 @@ public class UploadFileDAOImpl implements UploadFileDAO{
         sql.append("   AND RID = ?  ");
 
         List<UploadFile> list = jdbcTemplate.query(sql.toString(),
-                // db table의 컬렴명(snake case) => java 객체(camel case)로 자동 변환
+                // db table의 컬럼명(snake case) => java 객체(camel case)로 자동 변환
                 new BeanPropertyRowMapper<>(UploadFile.class), code, rid);
         log.info("list={}",list);
         return list;
@@ -143,7 +143,7 @@ public class UploadFileDAOImpl implements UploadFileDAO{
         sql.append(" where uploadfile_id = ? ");
 
         try {
-            UploadFile uploadFile = uploadFile = jdbcTemplate.queryForObject(
+            UploadFile uploadFile =  uploadFile = jdbcTemplate.queryForObject(
                     sql.toString(),
                     new BeanPropertyRowMapper<>(UploadFile.class),
                     uploadfileId);

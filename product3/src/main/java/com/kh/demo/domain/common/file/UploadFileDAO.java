@@ -18,7 +18,7 @@ public interface UploadFileDAO {
     void addFile(List<UploadFile> uploadFile);
 
     /**
-     * 업로드파일조회 여러건
+     * 업로드파일조회 단건
      * @param code
      * @param rid
      * @return

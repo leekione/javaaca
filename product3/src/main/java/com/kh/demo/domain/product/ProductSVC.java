@@ -36,6 +36,10 @@ public interface ProductSVC {
      */
     int update(Long productId, Product product);
 
+    int update(Long productId, Product product, MultipartFile file);
+    int update(Long productId, Product product, MultipartFile file, List<MultipartFile> files);
+    int update(Long productId, Product product, List<MultipartFile> files);
+
     /**
      * 상품삭제
      * @param productId

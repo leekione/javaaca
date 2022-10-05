@@ -99,8 +99,11 @@ public class ProductController {
     //1)상품조회
     Optional<Product> findedProduct = productSVC.findByProductId(productId);
     DetailForm detailForm = new DetailForm();
+    log.info("detailForm={}",detailForm);
+
     if(!findedProduct.isEmpty()) {
       BeanUtils.copyProperties(findedProduct.get(), detailForm);
+      log.info("detailForm={}",detailForm);
     }
     //2)첨부파일 조회
     //2-1)상품설명파일 조회
@@ -109,6 +112,7 @@ public class ProductController {
     if (uploadFile.size() > 0) {
       UploadFile attachFile = uploadFile.get(0);
       detailForm.setAttachFile(attachFile);
+      log.info("detailForm={}",detailForm);
     }
     //2-2)상품이미지 조회
     List<UploadFile> uploadFiles = uploadFileSVC.getFilesByCodeWithRid(AttachCode.P0102.name(), productId);
@@ -118,6 +122,7 @@ public class ProductController {
         imageFiles.add(file);
       }
       detailForm.setImageFiles(imageFiles);
+      log.info("detailForm={}",detailForm);
     }
 
     model.addAttribute("form", detailForm);

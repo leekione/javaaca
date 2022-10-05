@@ -1,10 +1,9 @@
-package com.kh.demo.web;
+package com.kh.demo.web.api;
 
 import com.kh.demo.domain.common.file.AttachCode;
 import com.kh.demo.domain.common.file.FileUtils;
 import com.kh.demo.domain.common.file.UploadFile;
 import com.kh.demo.domain.common.file.UploadFileSVC;
-import com.kh.demo.web.api.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.Resource;
